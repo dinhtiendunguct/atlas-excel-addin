@@ -3,3 +3,6 @@ Atlas.previous-*.xlam
 download-*.xlam
 *.log
 latest.json
+Atlas-Setup-*/
+Atlas-Setup-*.zip
+qa/

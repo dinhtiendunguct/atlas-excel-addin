@@ -13,10 +13,6 @@ try {
     $excel = New-Object -ComObject Excel.Application
     $excel.Visible = $false
     $book = $excel.Workbooks.Add()
-    $sourcePath = Join-Path $PSScriptRoot 'Atlas.bas'
-    if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
-        throw "VBA source file not found: $sourcePath"
-    }
     try {
         $project = $book.VBProject
         if ($null -eq $project) { throw 'Excel returned no VBProject.' }
@@ -29,11 +25,39 @@ try {
     try {
         # VBComponents.Import uses a legacy path conversion that loses Vietnamese characters.
         # Read using .NET Unicode paths and pass source text directly to VBA instead.
-        $sourceText = [IO.File]::ReadAllText($sourcePath, [Text.Encoding]::UTF8)
-        $sourceText = [regex]::Replace($sourceText, '(?m)^Attribute VB_Name = .*\r?\n', '')
-        $module = $components.Add(1)
-        $module.Name = 'Atlas'
-        $module.CodeModule.AddFromString($sourceText)
+        foreach ($moduleFile in @('Atlas.Core.bas', 'Atlas.UI.bas', 'Atlas.Reports.bas', 'Atlas.Tests.bas')) {
+            $sourcePath = Join-Path $PSScriptRoot $moduleFile
+            $sourceText = [IO.File]::ReadAllText($sourcePath, [Text.Encoding]::UTF8)
+            $moduleName = [regex]::Match($sourceText, 'Attribute VB_Name = "([^"]+)"').Groups[1].Value
+            $sourceText = [regex]::Replace($sourceText, '(?m)^Attribute VB_Name = .*\r?\n', '')
+            # VBA's editor stores ANSI text. Encode Unicode string literals as ASCII
+            # hex and decode with U() at runtime, independent of Windows locale.
+            $sourceText = [regex]::Replace($sourceText, '"(?:[^"]|"")*"', {
+                param($match)
+                if ($match.Value -notmatch '[^\x00-\x7F]') { return $match.Value }
+                $literal = $match.Value.Substring(1, $match.Value.Length - 2).Replace('""', '"')
+                $hex = ($literal.ToCharArray() | ForEach-Object { ([int]$_).ToString('X4') }) -join ''
+                return 'U("' + $hex + '")'
+            })
+            # Split long source lines at argument commas outside string literals.
+            $lines = foreach ($line in ($sourceText -split '\r?\n')) {
+                $remaining = $line
+                while ($remaining.Length -gt 900) {
+                    $quoted = $false; $cut = -1
+                    for ($i = 0; $i -lt [Math]::Min(850, $remaining.Length); $i++) {
+                        if ($remaining[$i] -eq '"') { $quoted = -not $quoted }
+                        if (-not $quoted -and $remaining[$i] -eq ',') { $cut = $i + 1 }
+                    }
+                    if ($cut -lt 0) { throw "VBA line too long in $moduleFile" }
+                    $remaining.Substring(0, $cut) + ' _'
+                    $remaining = '        ' + $remaining.Substring($cut).TrimStart()
+                }
+                $remaining
+            }
+            $module = $components.Add(1)
+            $module.Name = $moduleName
+            $module.CodeModule.AddFromString(($lines -join "`r`n"))
+        }
         Write-Host 'VBA source loaded successfully.'
     }
     catch { throw "VBA source load failed. Original error: $($_.Exception.ToString())" }
@@ -52,9 +76,7 @@ function Add-ZipText($name, $content) {
     try { $writer.Write($content) } finally { $writer.Dispose() }
 }
 try {
-    Add-ZipText 'customUI/customUI.xml' @'
-<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui"><ribbon><tabs><tab id="AtlasTab" label="Atlas"><group id="AtlasSchedule" label="Tien do"><button id="AtlasNew" label="Tao tien do" size="large" imageMso="TableInsert" onAction="RibbonNew"/><button id="AtlasCalculate" label="Tinh lich va Gantt" size="large" imageMso="CalculateNow" onAction="RibbonCalculate"/><button id="AtlasBaseline" label="Luu baseline" imageMso="FileSave" onAction="RibbonBaseline"/></group><group id="AtlasUpdates" label="Cap nhat"><button id="AtlasUpdate" label="Kiem tra cap nhat" imageMso="RefreshAll" onAction="RibbonUpdate"/></group></tab></tabs></ribbon></customUI>
-'@
+    Add-ZipText 'customUI/customUI.xml' ([IO.File]::ReadAllText((Join-Path $PSScriptRoot 'ribbon.xml'), [Text.Encoding]::UTF8))
     $entry = $archive.GetEntry('_rels/.rels')
     $reader = New-Object IO.StreamReader($entry.Open())
     try { [xml]$relationships = $reader.ReadToEnd() } finally { $reader.Dispose() }

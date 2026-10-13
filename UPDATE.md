@@ -1,42 +1,31 @@
 # Cập nhật Atlas
 
-## Trạng thái
+Nguồn phát hành công khai: https://github.com/dinhtiendunguct/atlas-excel-addin
 
-Đã thêm bộ cập nhật vào mã nguồn 0.2.0. File Atlas.xlam hiện có là bản cũ: cần build lại một lần để có nút mới. Chưa có repository/URL phát hành nên feedUrl đang trống; chưa thể tải phiên bản online thực tế.
+## Người dùng
 
-## Cài một lần
+Nếu đã có bộ cập nhật, chọn **Atlas → Kiểm tra cập nhật**. Đồng ý tải, lưu workbook, đóng tất cả Excel theo thông báo. Công cụ chờ tối đa 10 phút, không ép tắt Excel; mở lại Excel sau khi cập nhật thành công.
 
-Lưu và đóng Excel. Từ thư mục project chạy:
+Nếu chưa cài bootstrap hoặc cần cài lại: tải ZIP mới nhất tại Releases, giải nén, đóng Excel và nhấp đúp `Install-Atlas.cmd`. Bộ cài sao lưu Atlas đã có, chép bootstrap và cấu hình mới, tự đăng ký add-in. Nó không đổi chính sách bảo mật Excel. Một số máy do tổ chức quản lý có thể yêu cầu Browse thủ công hoặc chặn VBA theo chính sách riêng.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "E:\0. Chat GPT\Projects\add in tiến độ\Build-Atlas.ps1"
-powershell -NoProfile -ExecutionPolicy Bypass -File "E:\0. Chat GPT\Projects\add in tiến độ\Install-Atlas.ps1"
-```
+Chỉ nạp một bản Atlas. Add-in được cài cố định tại `%LOCALAPPDATA%\AtlasExcel\Atlas.xlam`. Bộ cài bỏ chọn bản Atlas.xlam ở đường dẫn khác khi đăng ký bản mới.
 
-Trong danh sách Excel Add-ins, bỏ chọn bản Atlas tại thư mục cũ. Browse đến `%LOCALAPPDATA%\AtlasExcel\Atlas.xlam` và chọn bản đó. Chỉ nạp một bản Atlas.
+## Phát hành phiên bản
 
-Build vẫn cần quyền Trust access to VBA project object model như trước; cập nhật các phiên bản sau không cần quyền này.
-
-## Phát hành
-
-Chủ dự án cấu hình `feedUrl` trong update-config.json bằng HTTPS URL cố định của latest.json. Đối với GitHub Releases có thể dùng `https://github.com/OWNER/REPO/releases/latest/download/latest.json`; public repository không cần token. Không hỗ trợ đăng nhập vào private repository trong bản đầu.
-
-Build add-in rồi tạo manifest:
+Build và chạy Test-Atlas.ps1 trước. Tăng version trong update-config.json. Tạo manifest:
 
 ```powershell
-.\New-AtlasRelease.ps1 -Version 0.2.1 -DownloadUrl 'https://github.com/OWNER/REPO/releases/download/v0.2.1/Atlas.xlam' -Notes 'Mo ta thay doi'
+.\New-AtlasRelease.ps1 -Version 0.3.0 -DownloadUrl 'https://github.com/dinhtiendunguct/atlas-excel-addin/releases/download/v0.3.0/Atlas.xlam' -Notes 'Mô tả thay đổi'
 ```
 
-Upload Atlas.xlam và latest.json vào cùng release. Version phải tăng. SHA256 trong manifest phải khớp đúng file đã upload. Nguồn phát hành phải do bạn quản lý: SHA256 phát hiện file lỗi/thay đổi so với manifest, không thay thế chữ ký số của nhà phát hành.
+Upload đúng Atlas.xlam và latest.json vào release. Feed cố định:
 
-## Sử dụng
+`https://github.com/dinhtiendunguct/atlas-excel-addin/releases/latest/download/latest.json`
 
-Atlas → Kiểm tra cập nhật → đồng ý tải → lưu và đóng tất cả Excel khi được nhắc. Công cụ chờ tối đa 10 phút, không ép tắt Excel. Sau thành công mở lại Excel bằng tay.
+Tải qua HTTPS, so sánh version, kiểm tra SHA256 và cấu trúc VBA trong ZIP trước khi thay thế. SHA256 đối chiếu với manifest không thay thế chữ ký số của nhà phát hành.
 
-Bản cũ được giữ tại Atlas.previous-*.xlam. Nếu cần khôi phục: đóng Excel, giữ bản hiện tại ở tên khác rồi sao chép bản previous mong muốn thành Atlas.xlam; sửa version trong update-config.json theo bản khôi phục.
+Online updater hiện chỉ thay Atlas.xlam; bootstrap PowerShell giữ nguyên. Thay bootstrap cần bộ cài ZIP mới. Workbook dự án không bị sửa khi cập nhật chương trình; bản 0.2 chưa tự chuyển cấu trúc sang 0.3.
 
-Không thay workbook dự án, không đổi cài đặt bảo mật Excel. Không tự chuyển đổi cấu trúc workbook. Bộ cập nhật PowerShell là bootstrap cố định; cơ chế này hiện cập nhật Atlas.xlam, chưa tự cập nhật chính bootstrap.
+## Khôi phục
 
-## Kiểm tra
-
-Đã kiểm tra cú pháp PowerShell và gắn callback Ribbon ở mã nguồn. Chưa xác nhận chạy trong Excel và chưa thử tải end-to-end từ máy chủ phát hành. Cần nghiệm thu: không có bản mới, từ chối tải, sai hash, mất mạng, Excel chưa đóng, cập nhật thành công và khôi phục.
+Atlas.previous-*.xlam được lưu cạnh bản đang dùng. Đóng Excel, giữ bản hiện tại bằng tên khác, sao chép bản previous mong muốn thành Atlas.xlam và sửa version trong update-config.json theo phiên bản khôi phục.

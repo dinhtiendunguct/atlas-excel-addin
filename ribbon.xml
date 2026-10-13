@@ -1,0 +1,40 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+  <ribbon><tabs><tab id="AtlasTab" label="Atlas">
+    <group id="AtlasProject" label="Dự án">
+      <button id="NewProject" label="Tạo dự án" imageMso="FileNew" size="large" onAction="RibbonNew"/>
+      <button id="DemoProject" label="Mẫu demo" imageMso="TableInsert" size="large" onAction="RibbonDemo"/>
+      <button id="ProjectInfo" label="Thông tin dự án" imageMso="FileProperties" onAction="RibbonInfo"/>
+      <button id="ResourceCatalog" label="Danh mục nguồn lực" imageMso="Group" onAction="RibbonResource"/>
+      <button id="Calendar" label="Cấu hình &amp; ngày nghỉ" imageMso="CalendarInsert" onAction="RibbonConfig"/>
+    </group>
+    <group id="AtlasTasks" label="Công việc">
+      <button id="AddTask" label="Thêm việc" imageMso="InsertRows" size="large" onAction="RibbonAddTask"/>
+      <button id="AddMilestone" label="Thêm mốc" imageMso="Diamond" onAction="RibbonAddMilestone"/>
+      <button id="AddGroup" label="Thêm hạng mục" imageMso="Group" onAction="RibbonAddGroup"/>
+      <button id="DeleteTask" label="Xóa công việc" imageMso="DeleteRows" onAction="RibbonDelete"/>
+      <button id="IndentTask" label="Thụt cấp" imageMso="IndentIncrease" onAction="RibbonIndent"/>
+      <button id="OutdentTask" label="Nâng cấp" imageMso="IndentDecrease" onAction="RibbonOutdent"/>
+      <button id="Renumber" label="Đánh số WBS" imageMso="Numbering" onAction="RibbonRenumber"/>
+    </group>
+    <group id="AtlasCalculate" label="Tính toán">
+      <button id="Calculate" label="Cập nhật tiến độ" imageMso="CalculateNow" size="large" onAction="RibbonCalculate"/>
+      <button id="Check" label="Kiểm tra dữ liệu" imageMso="DataValidation" onAction="RibbonCheck"/>
+      <button id="Baseline" label="Lưu baseline" imageMso="FileSave" onAction="RibbonBaseline"/>
+      <button id="Snapshot" label="Ghi nhận kỳ" imageMso="FileSaveAs" onAction="RibbonSnapshot"/>
+    </group>
+    <group id="AtlasGantt" label="Biểu đồ Gantt">
+      <button id="GanttDay" label="Ngày" imageMso="ViewNormalViewExcel" onAction="RibbonDay"/>
+      <button id="GanttWeek" label="Tuần" imageMso="ViewPageLayoutView" onAction="RibbonWeek"/>
+      <button id="GanttMonth" label="Tháng" imageMso="ViewPageBreakPreviewView" onAction="RibbonMonth"/>
+      <button id="GanttLinks" label="Ẩn / hiện liên kết" imageMso="ShapesInsert" onAction="RibbonLinks"/>
+    </group>
+    <group id="AtlasReports" label="Nguồn lực &amp; báo cáo">
+      <button id="ResourceCharts" label="Biểu đồ nguồn lực" imageMso="ChartInsert" size="large" onAction="RibbonResourceCharts"/>
+      <button id="Report" label="Báo cáo &amp; đường cong S" imageMso="ChartLine" size="large" onAction="RibbonReports"/>
+    </group>
+    <group id="AtlasSystem" label="Hỗ trợ">
+      <button id="Help" label="Hướng dẫn" imageMso="Help" onAction="RibbonGuide"/>
+      <button id="Update" label="Kiểm tra cập nhật" imageMso="RefreshAll" onAction="RibbonUpdate"/>
+    </group>
+  </tab></tabs></ribbon>
+</customUI>

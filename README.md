@@ -1,29 +1,56 @@
-# Atlas — Excel 365 Windows
+# Atlas Excel Add-in 0.3.0
 
-Bản mã nguồn đầu tiên cho add-in offline. Chưa đóng gói hoặc chạy thử trong Excel: môi trường tạo mã không khởi động được Excel COM (80070520).
+Add-in lập tiến độ thi công chạy offline trên Excel Microsoft 365 Windows, với giao diện tiếng Việt tham khảo bố cục Ribbon / bảng WBS / Gantt và báo cáo nguồn lực.
 
-## Tạo và cài add-in
+## Cài đặt
 
-1. Trong Excel: File → Options → Trust Center → Trust Center Settings → Macro Settings → bật tạm **Trust access to the VBA project object model** để script nhập mã nguồn. Không cần chọn bật toàn bộ macro.
-2. Mở PowerShell tại thư mục này, chạy `powershell -NoProfile -ExecutionPolicy Bypass -File .\Build-Atlas.ps1`.
-3. Khôi phục thiết lập Trust access sau khi tạo xong.
-4. Excel → File → Options → Add-ins → Manage Excel Add-ins → Go → Browse → chọn Atlas.xlam. Cho phép macro cho add-in theo chính sách của máy.
-5. Mở workbook trống, tab Atlas → Tạo tiến độ. Sửa bảng và bấm Tính lịch và Gantt sau mỗi lần thay đổi.
+Tải `Atlas-Setup-0.3.0.zip` tại [GitHub Releases](https://github.com/dinhtiendunguct/atlas-excel-addin/releases/latest). Giải nén, lưu và đóng toàn bộ Excel, rồi nhấp đúp `Install-Atlas.cmd`.
 
-## Quy ước bản đầu
+Bộ cài chép file vào `%LOCALAPPDATA%\AtlasExcel`, bỏ chặn các file của Atlas và đăng ký add-in với Excel. Nó không thay đổi thiết lập macro hoặc Protected View của Excel. Nếu chính sách máy chặn đăng ký, bộ cài hiển thị đường dẫn để Browse thủ công.
 
-- ID duy nhất; thời lượng là số nguyên ngày làm việc, 0 là milestone.
-- Lịch cố định thứ Hai–thứ Bảy, nghỉ Chủ nhật. Chưa có lịch nghỉ lễ tùy chỉnh.
-- Quan hệ nhập `A:FS:0;B:SS:2`, hỗ trợ FS/SS/FF/SF và lag nguyên âm/dương.
-- % hoàn thành nhập số 0–100. Thanh xanh lá thể hiện phần hoàn thành, xanh dương là kế hoạch, đỏ là công việc có dự trữ bằng 0.
-- Gantt theo ngày, tối đa 731 ngày; chưa có chế độ tuần/tháng hoặc đường nối quan hệ.
-- Tính lịch dùng mốc biên ngày làm việc; kết thúc hiển thị ngày làm việc cuối cùng. Milestone hiển thị ở biên bắt đầu tương ứng.
-- Lưu baseline chép ngày bắt đầu/kết thúc vào K:L và từ chối ghi đè. Chưa vẽ thanh baseline.
-- Chưa có phân cấp WBS, ngày thực tế, remaining duration, rescheduling theo data date, lịch nguồn lực hoặc tự cập nhật khi sửa ô.
-- In ngang vừa một trang theo chiều rộng. Cần kiểm tra khổ giấy và độ đọc trước khi xuất báo cáo dài.
+Mở Excel → Atlas → **Mẫu demo** để xem dự án 5 tầng + 1 hầm, hoặc **Tạo dự án** để tạo workbook dữ liệu mới. Lưu workbook dạng `.xlsx` riêng với chương trình.
 
-## Kiểm tra nghiệm thu trong Excel
+## Bản 0.3 có gì
 
-Với dữ liệu mẫu: A bắt đầu offset 0, B và C offset 3, D offset 9; dự án 19 ngày làm việc. A/B/D có dự trữ 0, C có dự trữ 2.
+- Ribbon: Dự án, Công việc, Tính toán, Gantt, Nguồn lực & báo cáo, Hỗ trợ.
+- 7 sheet: TIEN_DO, NGUON_LUC, CAU_HINH, NHAT_KY, HUONG_DAN, BIEU_DO_NL, BAO_CAO.
+- Hạng mục HM, công việc CV, mốc MOC; phân cấp / đánh số WBS và thu gọn hạng mục.
+- Lập lịch CPM với FS/SS/FF/SF và lag nguyên âm/dương; phát hiện ID trùng, ID thiếu, tự phụ thuộc và quan hệ vòng.
+- Lịch tuần tùy chỉnh và ngày nghỉ bổ sung.
+- Gantt ngày / tuần / tháng, đường găng, % hoàn thành, milestone, ngày báo cáo, baseline và bật/tắt đường nối.
+- Lưu baseline một lần; hiển thị sai lệch kết thúc bằng ngày làm việc.
+- Gán nhân lực, thiết bị và đơn giá; biểu đồ bình quân tháng và chi phí tháng / lũy kế.
+- Ghi nhận % thực tế theo kỳ, không ghi đè lịch sử cùng ngày; đường cong S kế hoạch và các điểm thực tế đã ghi nhận.
 
-Kiểm tra ID trùng, ID thiếu, quan hệ tự phụ thuộc và vòng A→B→A phải báo lỗi trước khi ghi kết quả. Kiểm tra FS/SS/FF/SF có lag, ngày Chủ nhật, milestone và baseline trước khi áp dụng dữ liệu dự án thật.
+## Quy ước dữ liệu
+
+`A01:FS:0;A02:SS:2` trong cột Công việc trước; ID giữ ổn định khi đánh lại WBS. Hạng mục HM tổng hợp công việc con theo tiền tố WBS và không tham gia mạng CPM.
+
+`NC:12;KS:1` trong cột Nguồn lực. Số lượng cố định mỗi ngày làm việc của công việc. Đơn giá / ngày do người dùng nhập tại NGUON_LUC. Các đơn giá mặc định và dữ liệu demo chỉ để minh họa.
+
+Lịch tuần gồm 7 ký tự từ thứ Hai đến Chủ nhật: `0000001` nghỉ Chủ nhật; `0000011` nghỉ thứ Bảy và Chủ nhật. `0` là ngày làm việc, `1` là ngày nghỉ. Ngày nghỉ bổ sung nhập tại CAU_HINH cột A từ dòng 12.
+
+## Giới hạn cần biết
+
+Bản này tính lịch từ ngày khởi công; chưa có cập nhật mạng theo actual dates / remaining duration, cân bằng nguồn lực, nhiều calendar riêng cho activity hoặc phê duyệt OBS. Chỉnh dữ liệu rồi bấm Cập nhật tiến độ / Báo cáo; chưa tự tính sau mỗi lần sửa ô.
+
+% tổng thể có trọng số thời lượng CV, không tính trùng HM và không tính mốc. Đường cong S kế hoạch phân bổ tuyến tính theo ngày làm việc, dùng baseline khi toàn bộ CV có baseline; nếu chưa đầy đủ thì dùng lịch hiện tại. Chỉ số TT/KH theo thời lượng không phải SPI của EVM. Thực tế chỉ có các kỳ được ghi nhận, không tự tạo lịch sử quá khứ.
+
+Tối đa 2000 dòng, 3650 ngày làm việc; Gantt ngày tối đa 731 ngày. Gantt in mặc định A3 ngang; dự án dài nên chọn thang tháng hoặc chỉnh vùng in để bảo đảm đọc được.
+
+Workbook từ bản 0.2 được giữ nguyên, chưa chuyển đổi tự động. Tạo dự án 0.3 trong workbook mới trước khi nhập dữ liệu.
+
+## Kiểm tra
+
+Đã chạy 30 ca nghiệm thu trực tiếp trong Excel 16.0: FS/SS/FF/SF, merge network, float, ngày nghỉ lễ / tuần 5 ngày, milestone, baseline, ID và quan hệ lỗi, Gantt ngày/tháng, đường nối, snapshot và đối chiếu chi phí nguồn lực. Đã kiểm tra bản in Gantt và các báo cáo. Chưa nghiệm thu bộ cài tự đăng ký trên máy khác hoặc luồng tải cập nhật ở mọi cấu hình bảo mật.
+
+## Phát triển
+
+`Build-Atlas.ps1` đóng gói Atlas.Core.bas, Atlas.UI.bas, Atlas.Reports.bas và Atlas.Tests.bas. Unicode literal được chuyển sang mã hex để giữ dấu tiếng Việt khi VBA editor dùng ANSI. Build cần Excel và quyền Trust access to the VBA project object model; cài và cập nhật không cần quyền đó.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Build-Atlas.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Test-Atlas.ps1 -Visible
+```
+
+Chi tiết phát hành tại [UPDATE.md](UPDATE.md).
