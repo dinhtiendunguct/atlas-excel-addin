@@ -19,7 +19,7 @@ Public Function AtlasAcceptance(ByVal outputPath As String) As String
     checks = 0
     CreateProject True, True
     Set book = ActiveWorkbook: Set w = ProjectSheet(book)
-    Check book.Worksheets.Count = 7, "Seven project sheets"
+    Check book.Worksheets.Count = 11, "Eleven project sheets"
     Check w.Shapes.Count > 27, "Demo Gantt shapes"
     Check book.Worksheets("BAO_CAO").ChartObjects.Count = 1, "S curve chart"
     Check book.Worksheets("BIEU_DO_NL").ChartObjects.Count = 3, "Resource charts"
@@ -89,9 +89,65 @@ Public Function AtlasAcceptance(ByVal outputPath As String) As String
     Check w.Shapes.Count > 0, "Daily Gantt"
     book.Worksheets("CAU_HINH").Range("B8") = "CO": DrawGantt book
     Check w.Shapes("Atlas_Link_1").Connector = msoTrue, "Dependency connector"
+    CheckLookahead book
     book.Close False
     AtlasAcceptance = CStr(checks) & " Excel acceptance checks passed"
     Exit Function
 Failed:
     AtlasAcceptance = "FAIL after " & checks & " checks: " & Err.Description
 End Function
+
+Private Sub CheckLookahead(ByVal book As Workbook)
+    Dim w As Worksheet, s As Worksheet, c As Worksheet, v As Worksheet, k As Long, cats As Variant
+    Set w = ProjectSheet(book): Set s = book.Worksheets("SAN_SANG")
+    Set c = book.Worksheets("RANG_BUOC"): Set v = book.Worksheets("LOOKAHEAD_21N")
+    w.Cells(9, 14) = "BCH": w.Cells(9, 15) = "Zone A"
+    RefreshLookahead book
+    Check v.Range("I6").Value = "HOLD", "Missing readiness must HOLD"
+    cats = Array("BAN_VE", "VAT_TU", "MAT_BANG", "QA_QC", "HSE", "NHAN_LUC")
+    For k = 0 To 5
+        s.Cells(6 + k, 1) = "A": s.Cells(6 + k, 2) = cats(k)
+        s.Cells(6 + k, 3) = "BCH": s.Cells(6 + k, 4) = w.Range("B5").Value
+        s.Cells(6 + k, 5) = "BB-01": s.Cells(6 + k, 6) = "PASS"
+    Next k
+    RefreshLookahead book
+    Check v.Range("I6").Value = "READY", "Six confirmed conditions READY"
+    c.Range("A6") = "C01": c.Range("B6") = "A": c.Range("C6") = "Vat tu"
+    c.Range("E6") = CDate(w.Range("B5").Value) - 1: c.Range("F6") = "CLOSED"
+    RefreshLookahead book
+    Check v.Range("I6").Value = "HOLD" And v.Range("L6").Value = 1, "Unproven CLOSED remains overdue HOLD"
+    c.Range("G6") = "BB-02": c.Range("H6") = "BCH": c.Range("I6") = w.Range("B5").Value
+    RefreshLookahead book
+    Check v.Range("I6").Value = "READY", "Verified constraint closure READY"
+    s.Range("D6") = CDate(w.Range("B5").Value) + 1
+    RefreshLookahead book
+    Check v.Range("I6").Value = "HOLD", "Future confirmation rejected"
+    s.Range("D6") = w.Range("B5").Value
+    s.Range("A12:F12").Value = s.Range("A6:F6").Value
+    RefreshLookahead book
+    Check v.Range("I6").Value = "HOLD", "Duplicate confirmation rejected"
+    s.Range("A12:F12").ClearContents
+    c.Range("B6") = "ORPHAN"
+    RefreshLookahead book
+    Check v.Range("I6").Value = "HOLD", "Orphan ID blocks release"
+    c.Range("B6") = "A"
+    w.Range("B5") = CDate(w.Cells(9, 7).Value) + 10
+    RefreshLookahead book
+    Check v.Range("A6").Value = "A", "Unfinished overdue activity retained"
+    w.Cells(9, 10) = 100
+    RefreshLookahead book
+    Check v.Range("A6").Value <> "A", "Completed activity excluded"
+    s.Range("A6:F12005").ClearContents
+    PrepareReadiness book
+    k = s.Cells(s.Rows.Count, 1).End(xlUp).Row
+    PrepareReadiness book
+    Check s.Cells(s.Rows.Count, 1).End(xlUp).Row = k, "Prepare confirmations preserves rows without duplicates"
+    w.Cells(9, 10) = 0: w.Cells(10, 10) = 100
+    w.Range("B5") = DateSerial(2026, 10, 5)
+    w.Cells(9, 6) = CDate(w.Range("B5").Value) + 20: w.Cells(9, 7) = w.Cells(9, 6).Value
+    RefreshLookahead book
+    Check v.Range("A6").Value = "A", "Day 21 included"
+    w.Cells(9, 6) = CDate(w.Range("B5").Value) + 21: w.Cells(9, 7) = w.Cells(9, 6).Value
+    RefreshLookahead book
+    Check v.Range("A6").Value = "", "Day 22 excluded and old rows cleared"
+End Sub

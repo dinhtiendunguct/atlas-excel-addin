@@ -28,6 +28,11 @@
       <button id="GanttMonth" label="Tháng" imageMso="ViewPageBreakPreviewView" onAction="RibbonMonth"/>
       <button id="GanttLinks" label="Ẩn / hiện liên kết" imageMso="ShapesInsert" onAction="RibbonLinks"/>
     </group>
+    <group id="AtlasField" label="Điều hành công trường">
+      <button id="Lookahead" label="Lookahead 21 ngày" imageMso="CalendarInsert" size="large" onAction="RibbonLookahead"/>
+      <button id="Constraints" label="Sổ ràng buộc" imageMso="DataValidation" onAction="RibbonConstraints"/>
+      <button id="Readiness" label="Điều kiện sẵn sàng" imageMso="FileProperties" onAction="RibbonReadiness"/>
+    </group>
     <group id="AtlasReports" label="Nguồn lực &amp; báo cáo">
       <button id="ResourceCharts" label="Biểu đồ nguồn lực" imageMso="ChartInsert" size="large" onAction="RibbonResourceCharts"/>
       <button id="Report" label="Báo cáo &amp; đường cong S" imageMso="ChartLine" size="large" onAction="RibbonReports"/>

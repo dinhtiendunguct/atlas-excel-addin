@@ -25,7 +25,7 @@ try {
     try {
         # VBComponents.Import uses a legacy path conversion that loses Vietnamese characters.
         # Read using .NET Unicode paths and pass source text directly to VBA instead.
-        foreach ($moduleFile in @('Atlas.Core.bas', 'Atlas.UI.bas', 'Atlas.Reports.bas', 'Atlas.Tests.bas')) {
+        foreach ($moduleFile in @('Atlas.Core.bas', 'Atlas.UI.bas', 'Atlas.Reports.bas', 'Atlas.Lookahead.bas', 'Atlas.Tests.bas')) {
             $sourcePath = Join-Path $PSScriptRoot $moduleFile
             $sourceText = [IO.File]::ReadAllText($sourcePath, [Text.Encoding]::UTF8)
             $moduleName = [regex]::Match($sourceText, 'Attribute VB_Name = "([^"]+)"').Groups[1].Value

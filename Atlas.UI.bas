@@ -88,6 +88,7 @@ Public Sub CreateProject(Optional ByVal demo As Boolean = False, Optional ByVal 
         SaveSnapshot book
     End If
     BuildReports book, False
+    RefreshLookahead book
     book.Worksheets("NGUON_LUC").Tab.Color = RGB(137, 83, 211)
     book.Worksheets("CAU_HINH").Tab.Color = RGB(111, 129, 149)
     book.Worksheets("NHAT_KY").Tab.Color = RGB(91, 112, 127)

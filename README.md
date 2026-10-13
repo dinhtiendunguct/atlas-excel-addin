@@ -1,10 +1,25 @@
-# Atlas Excel Add-in 0.3.1
+# Atlas Excel Add-in 0.4.0
+
+Atlas của Đinh Tiến Dũng: công cụ điều hành công trường phát triển từ Project Atlas Accelerated. Căn cứ và phạm vi riêng được lưu tại [ATLAS-DIRECTION.md](ATLAS-DIRECTION.md).
+
+## Điều hành công trường — 0.4.0
+
+Trên workbook 0.3 đang có, bấm **Atlas → Lookahead 21 ngày** để bổ sung bốn sheet: SAN_SANG, RANG_BUOC, LOOKAHEAD_21N, DIEU_HANH. Không cần tạo lại dự án.
+
+1. Nhập phụ trách và zone tại TIEN_DO cột N/O, kiểm tra ngày báo cáo B5 rồi cập nhật tiến độ.
+2. Bấm **Điều kiện sẵn sàng**: Atlas tạo các dòng còn thiếu cho sáu điều kiện của từng công việc chưa hoàn thành. Nhập người xác nhận, ngày, tham chiếu bằng chứng và PASS/HOLD. Không ghi đè xác nhận đã nhập.
+3. Bấm **Sổ ràng buộc**: nhập ID ràng buộc, Activity ID, nội dung, phụ trách, hạn và trạng thái. CLOSED cần thêm bằng chứng, người xác nhận, ngày đóng.
+4. Bấm **Lookahead 21 ngày** mỗi lần sửa dữ liệu để tính lại READY/HOLD. DIEU_HANH tổng hợp và báo lỗi liên kết/trùng dữ liệu. Chưa tự cập nhật khi sửa ô.
+
+Cửa sổ gồm ngày báo cáo đến ngày +20, kể cả việc tồn quá hạn chưa đạt 100%; loại hạng mục HM. Thiếu xác nhận, ngày tương lai, thiếu bằng chứng hoặc ràng buộc chưa đóng hợp lệ đều HOLD. ID không khớp và dữ liệu trùng chặn READY để người dùng xử lý trước.
+
+READY là xác nhận điều kiện thi công do người dùng nhập, chưa phải lệnh huy động hoặc phê duyệt chi tiền. Phần mềm chưa kiểm tra nội dung của tài liệu bằng chứng. Chưa có dự báo năng suất, cân bằng tổ đội hoặc dòng tiền thực tế.
 
 Add-in lập tiến độ thi công chạy offline trên Excel Microsoft 365 Windows, với giao diện tiếng Việt tham khảo bố cục Ribbon / bảng WBS / Gantt và báo cáo nguồn lực.
 
 ## Cài đặt
 
-Tải `Atlas-Setup-0.3.1.zip` tại [GitHub Releases](https://github.com/dinhtiendunguct/atlas-excel-addin/releases/latest). Giải nén, lưu và đóng toàn bộ Excel, rồi nhấp đúp `Install-Atlas.cmd`.
+Tải `Atlas-Setup-0.4.0.zip` tại [GitHub Releases](https://github.com/dinhtiendunguct/atlas-excel-addin/releases/latest). Giải nén, lưu và đóng toàn bộ Excel, rồi nhấp đúp `Install-Atlas.cmd`.
 
 Bộ cài chép file vào `%LOCALAPPDATA%\AtlasExcel`, bỏ chặn các file của Atlas và đăng ký add-in với Excel. Nó không thay đổi thiết lập macro hoặc Protected View của Excel. Nếu chính sách máy chặn đăng ký, bộ cài hiển thị đường dẫn để Browse thủ công.
 
