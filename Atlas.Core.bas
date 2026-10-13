@@ -1,6 +1,6 @@
 Attribute VB_Name = "Atlas"
 Option Explicit
-Public Const ATLAS_VERSION As String = "0.3.0"
+Public Const ATLAS_VERSION As String = "0.3.1"
 Public Const FIRST_ROW As Long = 9
 Public Const GANTT_COL As Long = 18
 Private holidays As Object
@@ -14,15 +14,29 @@ Public Function U(ByVal hex As String) As String
 End Function
 
 Public Sub RibbonUpdate(ByVal control As Object)
+    On Error GoTo Failed
     Dim updater As String, sh As Object
-    updater = ThisWorkbook.Path & Application.PathSeparator & "Atlas.Update.ps1"
-    If Dir(updater) = "" Then
+    updater = UpdaterInFolder(ThisWorkbook.Path)
+    If updater = "" Then updater = UpdaterInFolder(Environ("LOCALAPPDATA") & "\AtlasExcel")
+    If updater = "" Then
         MsgBox "Chưa có bộ cập nhật. Hãy chạy Install-Atlas.ps1 một lần.", vbInformation, "Atlas"
         Exit Sub
     End If
     Set sh = CreateObject("WScript.Shell")
     sh.Run "powershell.exe -NoProfile -ExecutionPolicy Bypass -File " & Chr(34) & updater & Chr(34), 0, False
+    Exit Sub
+Failed:
+    MsgBox "Không mở được bộ cập nhật: " & Err.Description & vbCrLf & "Hãy chạy Install-Atlas.cmd từ bộ cài mới nhất.", vbExclamation, "Atlas"
 End Sub
+Public Function UpdaterInFolder(ByVal folder As String) As String
+    On Error GoTo Missing
+    Dim fs As Object, candidate As String
+    If Len(folder) = 0 Or InStr(folder, "://") > 0 Then Exit Function
+    Set fs = CreateObject("Scripting.FileSystemObject")
+    candidate = fs.BuildPath(folder, "Atlas.Update.ps1")
+    If fs.FileExists(candidate) Then UpdaterInFolder = candidate
+Missing:
+End Function
 Public Sub RibbonNew(ByVal control As Object)
     CreateProject False
 End Sub

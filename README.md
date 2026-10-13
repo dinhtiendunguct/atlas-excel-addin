@@ -1,10 +1,10 @@
-# Atlas Excel Add-in 0.3.0
+# Atlas Excel Add-in 0.3.1
 
 Add-in lập tiến độ thi công chạy offline trên Excel Microsoft 365 Windows, với giao diện tiếng Việt tham khảo bố cục Ribbon / bảng WBS / Gantt và báo cáo nguồn lực.
 
 ## Cài đặt
 
-Tải `Atlas-Setup-0.3.0.zip` tại [GitHub Releases](https://github.com/dinhtiendunguct/atlas-excel-addin/releases/latest). Giải nén, lưu và đóng toàn bộ Excel, rồi nhấp đúp `Install-Atlas.cmd`.
+Tải `Atlas-Setup-0.3.1.zip` tại [GitHub Releases](https://github.com/dinhtiendunguct/atlas-excel-addin/releases/latest). Giải nén, lưu và đóng toàn bộ Excel, rồi nhấp đúp `Install-Atlas.cmd`.
 
 Bộ cài chép file vào `%LOCALAPPDATA%\AtlasExcel`, bỏ chặn các file của Atlas và đăng ký add-in với Excel. Nó không thay đổi thiết lập macro hoặc Protected View của Excel. Nếu chính sách máy chặn đăng ký, bộ cài hiển thị đường dẫn để Browse thủ công.
 
@@ -54,3 +54,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Test-Atlas.ps1 -Visible
 ```
 
 Chi tiết phát hành tại [UPDATE.md](UPDATE.md).
+
+## Sửa lỗi 0.3.1
+
+Thay Dir bằng FileSystemObject để tìm updater trong đường dẫn Unicode, bỏ qua URL cloud và tìm thêm tại LocalAppData. Đã chạy 3 kiểm thử đường dẫn và 30 kiểm thử Excel. Nếu nút cập nhật của bản 0.2 báo lỗi 52, cài lại một lần bằng ZIP 0.3.1.
