@@ -17,9 +17,22 @@ function HttpsUri($value) {
 try {
     $config = Get-Content -LiteralPath (Join-Path $root 'update-config.json') -Raw | ConvertFrom-Json
     if (-not $config.feedUrl) { Tell 'Chua cau hinh dia chi phat hanh. Hay cung cap link GitHub repository cho Atlas.'; exit 0 }
-    $feed = Invoke-RestMethod -Uri (HttpsUri $config.feedUrl) -TimeoutSec 20
+    # Download bytes: octet-stream assets may otherwise be decoded as ANSI,
+    # producing a string with a corrupted UTF-8 BOM on Windows PowerShell.
+    $feedPath = Join-Path $root ('feed-' + [guid]::NewGuid().ToString('N') + '.json')
+    try {
+        Invoke-WebRequest -Uri (HttpsUri $config.feedUrl) -OutFile $feedPath -UseBasicParsing -TimeoutSec 20
+        $feed = [IO.File]::ReadAllText($feedPath, [Text.Encoding]::UTF8) | ConvertFrom-Json
+    } finally {
+        if (Test-Path -LiteralPath $feedPath) { Remove-Item -LiteralPath $feedPath }
+    }
+    if (-not $feed.version) { throw 'Release feed has no version. Cannot determine latest release.' }
     $current = [version]$config.version
     $next = [version]$feed.version
+    if ($CheckOnly) {
+        [pscustomobject]@{ current = $current.ToString(); latest = $next.ToString(); updateAvailable = ($next -gt $current) } | ConvertTo-Json -Compress | Write-Output
+        exit 0
+    }
     if ($next -le $current) { Tell "Atlas $current da la phien ban moi nhat."; exit 0 }
     $downloadUri = HttpsUri $feed.url
     if ($feed.sha256 -notmatch '^[a-fA-F0-9]{64}$') { throw 'Release has no valid SHA256.' }
@@ -55,6 +68,7 @@ try {
     }
     Tell "Da cap nhat Atlas $next. Ban cu: $backup. Mo lai Excel de su dung."
 } catch {
+    if ($CheckOnly) { throw }
     Tell "Khong cap nhat duoc: $($_.Exception.Message)"
     exit 1
 } finally {
