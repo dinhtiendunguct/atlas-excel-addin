@@ -1,0 +1,5 @@
+*.backup-*.xlam
+Atlas.previous-*.xlam
+download-*.xlam
+*.log
+latest.json
