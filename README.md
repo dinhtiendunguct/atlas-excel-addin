@@ -1,4 +1,10 @@
-# Atlas Excel Add-in 0.4.0
+# Atlas Excel Add-in 0.4.1
+
+## Cập nhật độc lập — 0.4.1
+
+Nút Kiểm tra cập nhật tải bộ cài đầy đủ từ GitHub, kiểm tra SHA256 của ZIP và add-in, chờ bạn lưu/đóng Excel rồi tự thay chương trình, bootstrap và đăng ký đường dẫn cố định. Không cần mở thư mục giải nén để cập nhật. Bộ cài không dùng AddIns.Add vì Excel có thể trả về add-in cùng tên ở đường dẫn cũ. Đăng ký khởi động được ghi trực tiếp sau khi Excel đã đóng; các mục Atlas cũ được sao lưu và gỡ, giữ nguyên add-in khác.
+
+Nhật ký lần cập nhật gần nhất: `%LOCALAPPDATA%\AtlasExcel\update-last.log`. Việc sửa lần đầu từ bản 0.2 cần đóng Excel vì nút cập nhật của bản đó có lỗi trước khi mở được bootstrap.
 
 Atlas của Đinh Tiến Dũng: công cụ điều hành công trường phát triển từ Project Atlas Accelerated. Căn cứ và phạm vi riêng được lưu tại [ATLAS-DIRECTION.md](ATLAS-DIRECTION.md).
 

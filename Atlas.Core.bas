@@ -1,6 +1,6 @@
 Attribute VB_Name = "Atlas"
 Option Explicit
-Public Const ATLAS_VERSION As String = "0.4.0"
+Public Const ATLAS_VERSION As String = "0.4.1"
 Public Const FIRST_ROW As Long = 9
 Public Const GANTT_COL As Long = 18
 Private holidays As Object
@@ -16,8 +16,8 @@ End Function
 Public Sub RibbonUpdate(ByVal control As Object)
     On Error GoTo Failed
     Dim updater As String, sh As Object
-    updater = UpdaterInFolder(ThisWorkbook.Path)
-    If updater = "" Then updater = UpdaterInFolder(Environ("LOCALAPPDATA") & "\AtlasExcel")
+    updater = UpdaterInFolder(Environ("LOCALAPPDATA") & "\AtlasExcel")
+    If updater = "" Then updater = UpdaterInFolder(ThisWorkbook.Path)
     If updater = "" Then
         MsgBox "Chưa có bộ cập nhật. Hãy chạy Install-Atlas.ps1 một lần.", vbInformation, "Atlas"
         Exit Sub

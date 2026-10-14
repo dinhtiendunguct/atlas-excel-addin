@@ -23,31 +23,7 @@ foreach ($name in @('Atlas.xlam', 'Atlas.Update.ps1', 'update-config.json')) {
     Unblock-File -LiteralPath (Join-Path $installDir $name)
 }
 Write-Host "Installed files to $installDir"
-$excel = $null
 $officeVersion = '16.0'
-try {
-    $excel = New-Object -ComObject Excel.Application
-    $excel.Visible = $false
-    $officeVersion = $excel.Version
-    $blank = $excel.Workbooks.Add()
-    foreach ($existing in $excel.AddIns) {
-        if ($existing.Name -eq 'Atlas.xlam' -and $existing.FullName -ne (Join-Path $installDir 'Atlas.xlam')) {
-            $existing.Installed = $false
-        }
-    }
-    $addin = $excel.AddIns.Add((Join-Path $installDir 'Atlas.xlam'), $false)
-    $addin.Installed = $true
-    $blank.Close($false)
-    Write-Host 'Atlas registered. Open Excel and select the Atlas tab.'
-} catch {
-    Write-Warning "Excel registration failed: $($_.Exception.Message)"
-    Write-Host "Fallback: Excel Add-ins Browse -> $(Join-Path $installDir 'Atlas.xlam')"
-    exit 1
-} finally {
-    if ($null -ne $excel) { $excel.Quit(); [void][Runtime.InteropServices.Marshal]::ReleaseComObject($excel) }
-}
-# AddIns.Installed may not persist the startup entry from an automation instance.
-# Change only Atlas entries after Excel has quit; preserve every unrelated add-in.
 $optionsKey = "HKCU:\Software\Microsoft\Office\$officeVersion\Excel\Options"
 if (-not (Test-Path $optionsKey)) { [void](New-Item -Path $optionsKey -Force) }
 $options = Get-ItemProperty -Path $optionsKey
@@ -68,3 +44,12 @@ foreach ($oldEntry in $atlasEntries) {
 }
 if ((Get-ItemPropertyValue -Path $optionsKey -Name $entryName) -ne $startupValue) { throw 'Atlas startup registration verification failed.' }
 Write-Host "Verified Excel startup: $entryName = $startupValue"
+# Remove obsolete Atlas browse entries so they cannot be selected accidentally.
+$managerKey = "HKCU:\Software\Microsoft\Office\$officeVersion\Excel\Add-in Manager"
+if (Test-Path $managerKey) {
+    $managerEntries = @((Get-ItemProperty $managerKey).PSObject.Properties | Where-Object { $_.Name -match '(?i)(?:^|[\\/])Atlas(?:\[\d+\])?\.xlam$' -and $_.Name -ne (Join-Path $installDir 'Atlas.xlam') })
+    if ($managerEntries.Count -gt 0) {
+        $managerEntries | Select-Object Name,Value | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $installDir ('manager-backup-' + [guid]::NewGuid().ToString('N') + '.json')) -Encoding UTF8
+        foreach ($managerEntry in $managerEntries) { Remove-ItemProperty -Path $managerKey -Name $managerEntry.Name }
+    }
+}
