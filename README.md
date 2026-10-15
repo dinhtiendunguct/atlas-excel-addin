@@ -1,4 +1,4 @@
-# Atlas Excel Add-in 0.4.1
+# Atlas Excel Add-in 0.4.2
 
 ## Cập nhật độc lập — 0.4.1
 
@@ -79,3 +79,6 @@ Chi tiết phát hành tại [UPDATE.md](UPDATE.md).
 ## Sửa lỗi 0.3.1
 
 Thay Dir bằng FileSystemObject để tìm updater trong đường dẫn Unicode, bỏ qua URL cloud và tìm thêm tại LocalAppData. Đã chạy 3 kiểm thử đường dẫn và 30 kiểm thử Excel. Nếu nút cập nhật của bản 0.2 báo lỗi 52, cài lại một lần bằng ZIP 0.3.1.
+
+## Sửa tái nạp bản cũ — 0.4.2
+Tên file chương trình cố định là Atlas.Runtime.xlam, tách khỏi Atlas.xlam trong các thư mục bộ cài cũ. Khi chuyển đổi trên máy hiện tại đã bỏ chọn add-in cũ trong chính phiên Excel đang chạy, thay vì chỉ sửa registry ở bên ngoài. Cần kiểm chứng thêm lần mở Excel sau khi thoát phiên người dùng.

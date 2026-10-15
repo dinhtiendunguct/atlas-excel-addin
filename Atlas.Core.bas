@@ -1,6 +1,6 @@
 Attribute VB_Name = "Atlas"
 Option Explicit
-Public Const ATLAS_VERSION As String = "0.4.1"
+Public Const ATLAS_VERSION As String = "0.4.2"
 Public Const FIRST_ROW As Long = 9
 Public Const GANTT_COL As Long = 18
 Private holidays As Object

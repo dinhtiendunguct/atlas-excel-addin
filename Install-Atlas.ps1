@@ -19,8 +19,9 @@ if (Test-Path -LiteralPath (Join-Path $installDir 'Atlas.xlam')) {
     Copy-Item -LiteralPath (Join-Path $installDir 'Atlas.xlam') -Destination $backup
 }
 foreach ($name in @('Atlas.xlam', 'Atlas.Update.ps1', 'update-config.json')) {
-    Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $installDir $name)
-    Unblock-File -LiteralPath (Join-Path $installDir $name)
+    $destinationName = $name; if ($name -eq 'Atlas.xlam') { $destinationName = 'Atlas.Runtime.xlam' }
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $installDir $destinationName)
+    Unblock-File -LiteralPath (Join-Path $installDir $destinationName)
 }
 Write-Host "Installed files to $installDir"
 $officeVersion = '16.0'
@@ -28,7 +29,7 @@ $optionsKey = "HKCU:\Software\Microsoft\Office\$officeVersion\Excel\Options"
 if (-not (Test-Path $optionsKey)) { [void](New-Item -Path $optionsKey -Force) }
 $options = Get-ItemProperty -Path $optionsKey
 $openEntries = @($options.PSObject.Properties | Where-Object { $_.Name -match '^OPEN\d*$' })
-$atlasEntries = @($openEntries | Where-Object { [string]$_.Value -match '(?i)(?:^|[\\/])Atlas(?:\[\d+\])?\.xlam"?$' })
+$atlasEntries = @($openEntries | Where-Object { [string]$_.Value -match '(?i)(?:^|[\\/])Atlas(?:\.Runtime|\[\d+\])?\.xlam"?$' })
 $registryBackup = Join-Path $installDir ('startup-backup-' + [guid]::NewGuid().ToString('N') + '.json')
 @($openEntries | Select-Object Name,Value) | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $registryBackup -Encoding UTF8
 if ($atlasEntries.Count -gt 0) {
@@ -47,7 +48,7 @@ Write-Host "Verified Excel startup: $entryName = $startupValue"
 # Remove obsolete Atlas browse entries so they cannot be selected accidentally.
 $managerKey = "HKCU:\Software\Microsoft\Office\$officeVersion\Excel\Add-in Manager"
 if (Test-Path $managerKey) {
-    $managerEntries = @((Get-ItemProperty $managerKey).PSObject.Properties | Where-Object { $_.Name -match '(?i)(?:^|[\\/])Atlas(?:\[\d+\])?\.xlam$' -and $_.Name -ne (Join-Path $installDir 'Atlas.xlam') })
+    $managerEntries = @((Get-ItemProperty $managerKey).PSObject.Properties | Where-Object { $_.Name -match '(?i)(?:^|[\\/])Atlas(?:\.Runtime|\[\d+\])?\.xlam$' -and $_.Name -ne (Join-Path $installDir 'Atlas.xlam') })
     if ($managerEntries.Count -gt 0) {
         $managerEntries | Select-Object Name,Value | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $installDir ('manager-backup-' + [guid]::NewGuid().ToString('N') + '.json')) -Encoding UTF8
         foreach ($managerEntry in $managerEntries) { Remove-ItemProperty -Path $managerKey -Name $managerEntry.Name }
